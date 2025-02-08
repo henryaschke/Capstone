@@ -2,7 +2,7 @@ import sqlalchemy
 
 db_user = 'root'
 db_password = 'Asdfasdf?1'
-db_name = 'datarepo'
+db_name = 'db_repo'
 db_host = '34.175.137.71'
 db_port = '3306'
 
