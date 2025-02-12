@@ -8,7 +8,7 @@ def main():
     # -------------------------------------------------------------------------
     url = (
         "https://www.epexspot.com/en/market-results"
-        "?market_area=DE&auction=&trading_date=&delivery_date=2025-02-07"
+        "?market_area=DE&auction=&trading_date=&delivery_date=2025-02-11"
         "&underlying_year=&modality=Continuous&sub_modality=&technology="
         "&data_mode=table&period=&production_period=&product=15"
         "&ajax_form=1&_wrapper_format=drupal_ajax"
@@ -30,7 +30,7 @@ def main():
     # Use a date that you know has data; here, "5 Feb. 2025"
     data = {
         "filters[modality]": "Continuous",
-        "filters[delivery_date]": "7 Feb. 2025",
+        "filters[delivery_date]": "11 Feb. 2025",
         "filters[product]": "15",
         "filters[data_mode]": "table",
         "filters[market_area]": "DE",
@@ -161,7 +161,7 @@ def main():
         "Date"
     ]
     # Since we're scraping for 5 Feb. 2025, update the final date string accordingly.
-    final_date_str = "2025-02-07"
+    final_date_str = "2025-02-11"
 
     final_data = []
     for row in labeled_rows:
