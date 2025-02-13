@@ -1,4 +1,4 @@
-Time Frame,Low (€/MWh),High (€/MWh),Last (€/MWh),Weight Avg (€/MWh),ID Full (€/MWh),ID1 (€/MWh),ID3 (€/MWh),Buy Volume (MWh),Sell Volume (MWh),Volume (MWh),Date
+Time_Frame,Low,High,Last,Weight_Avg,ID_Full,ID1,ID3,Buy_Volume,Sell_Volume,Volume,Date
 00:00 - 00:15,107.90,168.35,128.04,134.37,134.37,126.69,133.55,382.7,338.4,360.6,2025-02-06
 00:15 - 00:30,103.71,166.02,106.66,126.93,126.93,124.54,125.56,352.1,272.5,312.3,2025-02-06
 00:30 - 00:45,102.85,149.89,107.03,120.99,120.99,118.48,119.25,417.6,369.5,393.6,2025-02-06
