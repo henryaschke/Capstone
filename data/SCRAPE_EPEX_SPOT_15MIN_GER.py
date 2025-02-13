@@ -2,13 +2,15 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
+final_date_str = "2025-02-12"
+
 def main():
     # -------------------------------------------------------------------------
     # 1) POST request as before
     # -------------------------------------------------------------------------
     url = (
         "https://www.epexspot.com/en/market-results"
-        "?market_area=DE&auction=&trading_date=&delivery_date=2025-02-10"
+        f"?market_area=DE&auction=&trading_date=&delivery_date={final_date_str}"
         "&underlying_year=&modality=Continuous&sub_modality=&technology="
         "&data_mode=table&period=&production_period=&product=15"
         "&ajax_form=1&_wrapper_format=drupal_ajax"
@@ -27,10 +29,9 @@ def main():
         "X-Requested-With": "XMLHttpRequest",
     }
 
-    # Use a date that you know has data; here, "5 Feb. 2025"
     data = {
         "filters[modality]": "Continuous",
-        "filters[delivery_date]": "10 Feb. 2025",
+        "filters[delivery_date]": f"{final_date_str}",
         "filters[product]": "15",
         "filters[data_mode]": "table",
         "filters[market_area]": "DE",
@@ -146,22 +147,21 @@ def main():
     #    The expected final columns are:
     #    [Time Frame, Low, High, Last, Weight Avg, ID Full, ID1, ID3, Buy Volume, Sell Volume, Volume, Date]
     # -------------------------------------------------------------------------
+    #Time_Frame,Low,High,Last,Weight_Avg,ID_Full,ID1,ID3,Buy_Volume,Sell_Volume,Volume,Date
     columns = [
-        "Time Frame",
-        "Low (€/MWh)",
-        "High (€/MWh)",
-        "Last (€/MWh)",
-        "Weight Avg (€/MWh)",
-        "ID Full (€/MWh)",
-        "ID1 (€/MWh)",
-        "ID3 (€/MWh)",
-        "Buy Volume (MWh)",
-        "Sell Volume (MWh)",
-        "Volume (MWh)",
+        "Time_Frame",
+        "Low",
+        "High",
+        "Last",
+        "Weight_Avg",
+        "ID_Full",
+        "ID1",
+        "ID3",
+        "Buy_Volume",
+        "Sell_Volume",
+        "Volume",
         "Date"
     ]
-    # Since we're scraping for 5 Feb. 2025, update the final date string accordingly.
-    final_date_str = "2025-02-10"
 
     final_data = []
     for row in labeled_rows:
@@ -178,8 +178,9 @@ def main():
     print(df.to_string(index=False))
     
     # Automatically name the output CSV file based on the final date and append EPEX_SPOT_15MIN_GER.
-    out_csv = f"{final_date_str}_EPEX_SPOT_15MIN_GER.csv"
+    out_csv = fr"C:\Users\henry\OneDrive\Desktop\Capstone\Capstone\data\{final_date_str}_EPEX_SPOT_15MIN_GER.csv"
     df.to_csv(out_csv, index=False)
+
     print(f"Saved CSV: {out_csv}")
 
 if __name__ == "__main__":

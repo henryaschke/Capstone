@@ -1,4 +1,4 @@
-Time_Frame,Low,High,Last,Weight_Avg,ID_Full,ID1,ID3,Buy_Volume,Sell_Volume,Volume,Date
+Time_Frame,Low,High,Last,Weight_Avg,ID_Full,ID1,ID3,Buy_Volume,Sell_Volume,Date
 00:00 - 00:15,184.1,154.29,130.27,130.27,132.43,133.81,410.2,424.2,417.2,2025-02-02
 00:15 - 00:30,197.09,82.56,132.67,132.67,132.56,133.6,321.9,343.0,332.5,2025-02-02
 00:30 - 00:45,152.77,105.0,118.67,118.67,125.2,122.65,336.5,341.2,338.9,2025-02-02
