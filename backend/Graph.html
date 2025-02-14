@@ -1,62 +1,231 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Lowest & Highest Prices Graph</title>
-    <!-- Load Chart.js from a CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="utf-8">
+  <title>Trading Dashboard</title>
+  <!-- Load Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Load the Chart.js Zoom Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.3.0"></script>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #ddd;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .dashboard-container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .checkbox-group, .button-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    button {
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .checkbox-group label {
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <h1>15-Minute Price Data</h1>
-    <canvas id="priceChart" width="800" height="400"></canvas>
-    <script>
-        // The Jinja2 'tojson' filter converts the Python lists to JSON.
-        const timeFrames = {{ time_frames | tojson }};
-        const lows = {{ lows | tojson }};
-        const highs = {{ highs | tojson }};
 
-        // Create a line chart with two datasets: one for the lowest prices and one for the highest prices.
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        const priceChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: timeFrames,
-                datasets: [
-                    {
-                        label: 'Lowest Price',
-                        data: lows,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Highest Price',
-                        data: highs,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
+  <div class="dashboard-container">
+    <h1>Historic Electricity Prices — Trading Dashboard</h1>
+    
+    <div class="controls">
+      <!-- Checkbox toggles -->
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" id="toggleLow" checked />
+          Show Low
+        </label>
+        <label>
+          <input type="checkbox" id="toggleHigh" checked />
+          Show High
+        </label>
+        <label>
+          <input type="checkbox" id="toggleWavg" checked />
+          Show Weighted Avg
+        </label>
+      </div>
+      
+      <!-- Action buttons -->
+      <div class="button-group">
+        <button onclick="resetZoom()">Reset Zoom</button>
+        <button onclick="downloadChart()">Download Chart</button>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="priceChart" width="1000" height="500"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // The Jinja2 variables from Flask:
+    const timeFrames = {{ time_frames | tojson }};
+    const lows = {{ lows | tojson }};
+    const highs = {{ highs | tojson }};
+    const weightedAvgs = {{ weighted_avgs | tojson }};
+
+    // Prepare datasets (with default "visible" = true)
+    const lowDataset = {
+      label: 'Low',
+      data: lows,
+      borderColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      fill: false,
+      tension: 0.1,
+      hidden: false
+    };
+    const highDataset = {
+      label: 'High',
+      data: highs,
+      borderColor: 'rgba(255, 99, 132, 1)',
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      fill: false,
+      tension: 0.1,
+      hidden: false
+    };
+    const wavgDataset = {
+      label: 'Weighted Avg',
+      data: weightedAvgs,
+      borderColor: 'rgba(255, 206, 86, 1)',
+      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      fill: false,
+      tension: 0.1,
+      hidden: false
+    };
+
+    // Setup chart
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const priceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeFrames,
+        datasets: [ lowDataset, highDataset, wavgDataset ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Time Frame',
+              color: '#ffffff'
             },
-            options: {
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Time Frame'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Price'
-                        }
-                    }
-                }
+            ticks: {
+              color: '#aaaaaa'
             }
-        });
-    </script>
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Price',
+              color: '#ffffff'
+            },
+            ticks: {
+              color: '#aaaaaa'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#ffffff'
+            }
+          },
+          // Enable zooming & panning
+          zoom: {
+            pan: {
+              enabled: true,
+              mode: 'x',
+              speed: 0.5
+            },
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true
+              },
+              mode: 'x',
+            }
+          },
+          tooltip: {
+            enabled: true,
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            footerColor: '#ffffff'
+          }
+        }
+      }
+    });
+
+    // ========== CHECKBOX TOGGLES ==========
+    // Low
+    document.getElementById('toggleLow').addEventListener('change', function() {
+      priceChart.data.datasets[0].hidden = !this.checked;
+      priceChart.update();
+    });
+    // High
+    document.getElementById('toggleHigh').addEventListener('change', function() {
+      priceChart.data.datasets[1].hidden = !this.checked;
+      priceChart.update();
+    });
+    // Weighted Avg
+    document.getElementById('toggleWavg').addEventListener('change', function() {
+      priceChart.data.datasets[2].hidden = !this.checked;
+      priceChart.update();
+    });
+
+    // ========== RESET ZOOM FUNCTION ==========
+    function resetZoom() {
+      priceChart.resetZoom();
+    }
+
+    // ========== DOWNLOAD CHART FUNCTION ==========
+    function downloadChart() {
+      // Convert chart to image and trigger download
+      const link = document.createElement('a');
+      link.href = priceChart.toBase64Image();
+      link.download = 'price_chart.png';
+      link.click();
+    }
+  </script>
 </body>
 </html>
